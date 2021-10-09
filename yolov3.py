@@ -3,7 +3,7 @@ import numpy as np
 from scipy import spatial
 
 # Load Yolo model
-net = cv2.dnn.readNet("weights/yolov3-spp.weights", "cfg/yolov3-spp.cfg")
+net = cv2.dnn.readNet("weights/yolov3-608.weights", "cfg/yolov3-608.cfg")
 classes = []
 with open("coco.names", "r") as f:
     classes = [line.strip() for line in f.readlines()]
@@ -11,7 +11,7 @@ layer_names = net.getLayerNames()
 output_layers = [layer_names[i[0] - 1] for i in net.getUnconnectedOutLayers()]
 colors = np.random.uniform(100, 255, size=(len(classes), 3))
 
-videoPath = 'video/train/test.mp4'
+videoPath = 'video/train/hummingbirds.mp4'
 camera = cv2.VideoCapture(videoPath)
 fps = camera.get(cv2.CAP_PROP_FPS)
 _,img = camera.read()
