@@ -21,6 +21,12 @@ ret, frame2 = cap.read()
 s1 = frame1[250: 650, 475: 1700]
 s2 = frame2[250: 650, 475: 1700]
 
+def mergeBoxes(boxes):
+    for box in boxes:
+        (x, y, w, h) = cv2.boundingRect(box)
+        print((x, y, w, h))
+    print('---------')
+
 while cap.isOpened():
     diff = cv2.absdiff(s1, s2)
     gray = cv2.cvtColor(diff, cv2.COLOR_BGR2GRAY)
@@ -28,6 +34,7 @@ while cap.isOpened():
     _, thresh = cv2.threshold(blur, 20, 255, cv2.THRESH_BINARY)
     dilated = cv2.dilate(thresh, None, iterations=3)
     contours, _ = cv2.findContours(dilated, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    mergeBoxes(contours)
     for contour in contours:
         (x, y, w, h) = cv2.boundingRect(contour)
 
@@ -50,10 +57,7 @@ while cap.isOpened():
 
     if cv2.waitKey(40) == 27:
         break
-
-def mergeBox(boxes):
-    pass
-
+        
 cv2.destroyAllWindows()
 cap.release()
 out.release()
