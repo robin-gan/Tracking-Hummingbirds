@@ -31,8 +31,8 @@ s2 = frame2[heightDownLimit: heightUpLimit, widthDownLimit: widthUpLimit]
 def mergeBoxes(boxes):
     for box in boxes:
         (x, y, w, h) = cv2.boundingRect(box)
-        print((x, y, w, h))
-    print('---------')
+    #    print((x, y, w, h))
+    #print('---------')
 
 while cap.isOpened():
     diff = cv2.absdiff(s1, s2)
@@ -44,6 +44,7 @@ while cap.isOpened():
     dilated = cv2.dilate(thresh, None, iterations=3)
     contours, _ = cv2.findContours(dilated, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     mergeBoxes(contours)
+    
     for contour in contours:
         (x, y, w, h) = cv2.boundingRect(contour)
 
