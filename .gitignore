@@ -1,6 +1,7 @@
 *.mp4
 *.avi
 weights/
+video/
 
 # JPEG
 *.jpg
