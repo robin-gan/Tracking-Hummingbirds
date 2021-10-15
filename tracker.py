@@ -2,19 +2,22 @@ import cv2
 import numpy as np
 import tracemalloc
 import sys
+from frame import *
 
 tracemalloc.start()
 
-videoPath = 'video/train/test1.mp4'
+VIDEO_PATH = 'video/train/test1.mp4'
+BOX_BORDER_COLOR = (111, 0, 51)
 
-cap = cv2.VideoCapture(videoPath)
+cap = cv2.VideoCapture(VIDEO_PATH)
 
 frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
 frame_height =int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 fourcc = cv2.VideoWriter_fourcc('X','V','I','D')
 fps = cap.get(cv2.CAP_PROP_FPS)
 
-out = cv2.VideoWriter('video/result/output.mp4', fourcc, fps, (frame_width,frame_height))
+out = cv2.VideoWriter('video/result/output.mp4', fourcc, 
+                        fps, (frame_width,frame_height))
 
 ret, frame1 = cap.read()
 ret, frame2 = cap.read()
@@ -26,26 +29,13 @@ heightDownLimit = 250
 widthUpLimit = 1700
 widthDownLimit = 475
 
-s1 = frame1[heightDownLimit: heightUpLimit, widthDownLimit: widthUpLimit]
-s2 = frame2[heightDownLimit: heightUpLimit, widthDownLimit: widthUpLimit]
+s1 = (frame1[heightDownLimit:heightUpLimit, 
+        widthDownLimit:widthUpLimit]).copy()
+s2 = (frame2[heightDownLimit:heightUpLimit, 
+            widthDownLimit:widthUpLimit]).copy()
 
 frames = []
 frameNum = 1
-
-class Frame:
-    def __init__(self, frameNumber):
-        self.number = frameNumber
-        self.boxes = []
-    def add(self, boxData):
-        self.boxes.append(boxData)
-    def getBoxes(self):
-        return self.boxes
-
-def mergeBoxes(boxes):
-    for box in boxes:
-        (x, y, w, h) = cv2.boundingRect(box)
-    #    print((x, y, w, h))
-    #print('---------')
 
 while cap.isOpened():
     currentFrame = Frame(frameNumber=frameNum)
@@ -55,24 +45,27 @@ while cap.isOpened():
     blur = cv2.GaussianBlur(gray, (5,5), 0)
     _, thresh = cv2.threshold(blur, 20, 255, cv2.THRESH_BINARY)
     dilated = cv2.dilate(thresh, None, iterations=3)
-
     contours, _ = cv2.findContours(dilated, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-    mergeBoxes(contours)
 
     for contour in contours:
         (x, y, w, h) = cv2.boundingRect(contour)
         if cv2.contourArea(contour) > 105:
             currentFrame.add((x, y, w, h))
-            cv2.rectangle(frame1, (x+widthDownLimit, y+heightDownLimit), (x+w+widthDownLimit, y+h+heightDownLimit), (0, 255, 0), 2)
-        #cv2.putText(frame1, "Status: {}".format('Movement'), (10, 20), cv2.FONT_HERSHEY_SIMPLEX,
-                    #1, (0, 0, 255), 3)
-    #cv2.drawContours(frame1, contours, -1, (0, 255, 0), 2)
+            
+    merged = mergeBoxes(currentFrame.getBoxes())
+
+    for b in merged:
+        (x, y, w, h) = b
+        cv2.rectangle(frame1, (x+widthDownLimit, y+heightDownLimit), 
+                        (x+w+widthDownLimit, y+h+heightDownLimit), BOX_BORDER_COLOR, 2)
+         #cv2.drawContours(frame1, contours, -1, BOX_BORDER_COLOR, 2)
+
+    print(frameNum)
+    print('---------------')
 
     frameNum += 1
     frames.append(currentFrame)
-    #image = cv2.resize(frame1, (frame_width,frame_height))
-    image = frame1
-    out.write(image)
+    out.write(frame1)
 
     try:
         cv2.imshow("feed", frame1)
@@ -81,10 +74,10 @@ while cap.isOpened():
 
     frame1 = frame2
     s1 = s2
-    ret, frame2 = cap.read()
 
+    ret, frame2 = cap.read()
     if frame2 is not None:
-        s2 = frame2[heightDownLimit: heightUpLimit, widthDownLimit: widthUpLimit]
+        s2 = (frame2[heightDownLimit:heightUpLimit, widthDownLimit:widthUpLimit]).copy()
     
     if cv2.waitKey(40) == 27:
         break
@@ -97,9 +90,10 @@ tracemalloc.stop()
 for frame in frames:
     for box in frame.getBoxes():
         (x, y, w, h) = box
-        cv2.rectangle(firstFrame, (x+widthDownLimit, y+heightDownLimit), (x+w+widthDownLimit, y+h+heightDownLimit), (0, 255, 0), 2)
+        cv2.rectangle(firstFrame, (x+widthDownLimit, y+heightDownLimit), 
+                    (x+w+widthDownLimit, y+h+heightDownLimit), BOX_BORDER_COLOR, 2)
 
-cv2.imwrite("frame.jpg",firstFrame)
+cv2.imwrite("coordinates.jpg",firstFrame)
 
 cv2.destroyAllWindows()
 
