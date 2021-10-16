@@ -47,21 +47,21 @@ while cap.isOpened():
     dilated = cv2.dilate(thresh, None, iterations=3)
     contours, _ = cv2.findContours(dilated, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
+    raw = []
     for contour in contours:
         (x, y, w, h) = cv2.boundingRect(contour)
-        if cv2.contourArea(contour) > 105:
-            currentFrame.add((x, y, w, h))
+        if cv2.contourArea(contour) > 100:
+            raw.append((x, y, w, h))
+            cv2.rectangle(frame1, (x+widthDownLimit, y+heightDownLimit), 
+                        (x+w+widthDownLimit, y+h+heightDownLimit), (0,255,0), 2)
             
-    merged = mergeBoxes(currentFrame.getBoxes())
-
+    merged = mergeBoxes(raw)
+    currentFrame.setBoxes(merged)
     for b in merged:
         (x, y, w, h) = b
         cv2.rectangle(frame1, (x+widthDownLimit, y+heightDownLimit), 
                         (x+w+widthDownLimit, y+h+heightDownLimit), BOX_BORDER_COLOR, 2)
          #cv2.drawContours(frame1, contours, -1, BOX_BORDER_COLOR, 2)
-
-    print(frameNum)
-    print('---------------')
 
     frameNum += 1
     frames.append(currentFrame)
@@ -91,7 +91,7 @@ for frame in frames:
     for box in frame.getBoxes():
         (x, y, w, h) = box
         cv2.rectangle(firstFrame, (x+widthDownLimit, y+heightDownLimit), 
-                    (x+w+widthDownLimit, y+h+heightDownLimit), BOX_BORDER_COLOR, 2)
+                    (x+w+widthDownLimit, y+h+heightDownLimit), (0,255,0), 2)
 
 cv2.imwrite("coordinates.jpg",firstFrame)
 
