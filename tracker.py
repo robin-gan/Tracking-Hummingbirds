@@ -52,17 +52,17 @@ while cap.isOpened():
         (x, y, w, h) = cv2.boundingRect(contour)
         if cv2.contourArea(contour) > 100:
             raw.append((x, y, w, h))
-            cv2.rectangle(frame1, (x+widthDownLimit, y+heightDownLimit), 
-                        (x+w+widthDownLimit, y+h+heightDownLimit), (0,255,0), 2)
+            #cv2.rectangle(frame1, (x+widthDownLimit, y+heightDownLimit), 
+                        #(x+w+widthDownLimit, y+h+heightDownLimit), (0,255,0), 2)
             
-    merged = mergeBoxes(raw)
+    #merged = mergeBoxes(raw)
+    merged = raw
     currentFrame.setBoxes(merged)
     for b in merged:
         (x, y, w, h) = b
         cv2.rectangle(frame1, (x+widthDownLimit, y+heightDownLimit), 
                         (x+w+widthDownLimit, y+h+heightDownLimit), BOX_BORDER_COLOR, 2)
          #cv2.drawContours(frame1, contours, -1, BOX_BORDER_COLOR, 2)
-
     frameNum += 1
     frames.append(currentFrame)
     out.write(frame1)
@@ -91,11 +91,9 @@ for frame in frames:
     for box in frame.getBoxes():
         (x, y, w, h) = box
         cv2.rectangle(firstFrame, (x+widthDownLimit, y+heightDownLimit), 
-                    (x+w+widthDownLimit, y+h+heightDownLimit), (0,255,0), 2)
+                    (x+w+widthDownLimit, y+h+heightDownLimit), BOX_BORDER_COLOR, 2)
 
 cv2.imwrite("coordinates.jpg",firstFrame)
-
 cv2.destroyAllWindows()
-
 cap.release()
 out.release()

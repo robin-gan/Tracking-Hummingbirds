@@ -16,9 +16,11 @@ class Frame:
         return self.boxes
     def setBoxes(self, newBoxes):
         self.boxes = newBoxes
+    def getFrameNum(self):
+        return self.number
 
-def mergeBoxes(boxes):
-    boxes = list(boxes)
+def mergeBoxes(boxesIn):
+    boxes = list(boxesIn)
     i = 0
     for curr in boxes:
         if(i + 1 < len(boxes)):
