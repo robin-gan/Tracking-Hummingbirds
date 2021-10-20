@@ -4,7 +4,7 @@ from skimage.metrics import structural_similarity as ssim
 import math
 
 MERGE_DISTANCE = 15
-MERGE_AREA = 400 #to be determined later
+MERGE_AREA = 100 #to be determined later
 
 class Frame:
     def __init__(self, frameNumber):
@@ -18,6 +18,15 @@ class Frame:
         self.boxes = newBoxes
     def getFrameNum(self):
         return self.number
+
+class Dive:
+    def __init__(self):
+        self.points = []
+        self.distance = 0
+    def add(self, value):
+        self.points.append(value)
+    def size(self):
+        return len(self.points)
 
 def mergeBoxes(boxesIn):
     boxes = list(boxesIn)
@@ -44,6 +53,15 @@ def canMerge(box1, box2):
     (x2, y2, w2, h2) = box2
     return real_distance((x, y, x+w, y+h), (x2, y2, x2+w2, y2+h2)) < MERGE_DISTANCE and min(w2*h2, w*h) < MERGE_AREA
 
+def extract(frames):
+    result = []
+    for i in range(len(frames) - 1):
+        current = frames[i]
+        next = frames[i + 1]
+        for f in current:
+            pass
+
+#only used in real_distance
 def euclidean_distance(box1, box2):
     (x, y) = box1
     (x2, y2) = box2

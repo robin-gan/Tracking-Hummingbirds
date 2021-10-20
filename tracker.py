@@ -6,7 +6,7 @@ from frame import *
 
 tracemalloc.start()
 
-VIDEO_PATH = 'video/train/test1.mp4'
+VIDEO_PATH = 'video/train/test2.mp4'
 BOX_BORDER_COLOR = (111, 0, 51)
 
 cap = cv2.VideoCapture(VIDEO_PATH)
@@ -16,7 +16,7 @@ frame_height =int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 fourcc = cv2.VideoWriter_fourcc('X','V','I','D')
 fps = cap.get(cv2.CAP_PROP_FPS)
 
-out = cv2.VideoWriter('video/result/output.mp4', fourcc, 
+out = cv2.VideoWriter('video/result/output' + VIDEO_PATH[16] + '.mp4', fourcc, 
                         fps, (frame_width,frame_height))
 
 ret, frame1 = cap.read()
@@ -24,10 +24,10 @@ ret, frame2 = cap.read()
 
 firstFrame = frame1
 
-heightUpLimit = 650
-heightDownLimit = 250
-widthUpLimit = 1700
-widthDownLimit = 475
+heightUpLimit = 1080
+heightDownLimit = 0
+widthUpLimit = 1920
+widthDownLimit = 0
 
 s1 = (frame1[heightDownLimit:heightUpLimit, 
         widthDownLimit:widthUpLimit]).copy()
@@ -66,11 +66,10 @@ while cap.isOpened():
     frameNum += 1
     frames.append(currentFrame)
     out.write(frame1)
-
     try:
         cv2.imshow("feed", frame1)
     except:
-        break 
+        break
 
     frame1 = frame2
     s1 = s2
@@ -93,7 +92,7 @@ for frame in frames:
         cv2.rectangle(firstFrame, (x+widthDownLimit, y+heightDownLimit), 
                     (x+w+widthDownLimit, y+h+heightDownLimit), BOX_BORDER_COLOR, 2)
 
-cv2.imwrite("coordinates.jpg",firstFrame)
+cv2.imwrite("coordinates" + VIDEO_PATH[16]+ ".jpg",firstFrame)
 cv2.destroyAllWindows()
 cap.release()
 out.release()
