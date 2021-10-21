@@ -2,6 +2,7 @@
 *.avi
 weights/
 video/
+images/
 
 # JPEG
 *.jpg
