@@ -1,7 +1,9 @@
 import cv2
 import tracemalloc
 from frame import *
+import timeit
 
+start = timeit.default_timer()
 tracemalloc.start()
 
 VIDEO_PATH = 'video/train/test3.mp4'
@@ -29,7 +31,7 @@ s2 = (frame2[heightDownLimit:heightUpLimit,
 frames = []
 frameNum = 1
 
-while cap.isOpened():
+while frame2 is not None:
     currentFrame = []
 
     diff = cv2.absdiff(s1, s2)
@@ -58,10 +60,10 @@ while cap.isOpened():
     frameNum += 1
     frames.append(currentFrame)
     out.write(frame1)
-    try:
+    '''try:
         cv2.imshow("feed", frame1)
     except:
-        break
+        break'''
 
     frame1 = frame2
     s1 = s2
@@ -70,8 +72,8 @@ while cap.isOpened():
     if frame2 is not None:
         s2 = (frame2[heightDownLimit:heightUpLimit, widthDownLimit:widthUpLimit]).copy()
     
-    if cv2.waitKey(40) == 27:
-        break
+    '''if cv2.waitKey(40) == 27:
+        break'''
 
 cv2.destroyAllWindows()
 cap.release()
@@ -103,3 +105,6 @@ for i, dives in enumerate([divesRaw, dives2]):
 
     #cv2.imwrite("images/coordinates_" + str(index) + ".jpg", firstFrame)
     cv2.imwrite("coordinates" + VIDEO_PATH[16]+ "_" + str(i) + ".jpg",firstFrame)
+
+stop = timeit.default_timer()
+print('Time: ', stop - start)
