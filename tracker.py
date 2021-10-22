@@ -2,6 +2,7 @@ import cv2
 import tracemalloc
 from frame import *
 import timeit
+from tool import convert
 
 start = timeit.default_timer()
 tracemalloc.start()
@@ -10,6 +11,8 @@ VIDEO_PATH = 'video/train/test3.mp4'
 
 cap = cv2.VideoCapture(VIDEO_PATH)
 
+length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+print(length)
 frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
 frame_height =int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 fourcc = cv2.VideoWriter_fourcc('X','V','I','D')
@@ -31,7 +34,7 @@ s2 = (frame2[heightDownLimit:heightUpLimit,
 frames = []
 frameNum = 1
 
-while frame2 is not None:
+while frame2 is not None and frameNum < length:
     currentFrame = []
 
     diff = cv2.absdiff(s1, s2)
@@ -57,6 +60,9 @@ while frame2 is not None:
         cv2.rectangle(frame1, (x+widthDownLimit, y+heightDownLimit), 
                         (x+w+widthDownLimit, y+h+heightDownLimit), BOX_BORDER_COLOR, 2)
          #cv2.drawContours(frame1, contours, -1, BOX_BORDER_COLOR, 2)
+    '''print(convert(frameNum / fps))
+    print(frameNum, length)
+    print("----------")'''
     frameNum += 1
     frames.append(currentFrame)
     out.write(frame1)
@@ -88,6 +94,7 @@ divesRaw = extract(frames, firstFrame)
 lens = [len(d.boxes()) for d in divesRaw]
 dives2 = [divesRaw[lens.index(max(lens))]]
 
+originalFrame = firstFrame.copy()
 for i, dives in enumerate([divesRaw, dives2]):
     for index, dive in enumerate(dives):
         color = randomColor()
@@ -105,6 +112,7 @@ for i, dives in enumerate([divesRaw, dives2]):
 
     #cv2.imwrite("images/coordinates_" + str(index) + ".jpg", firstFrame)
     cv2.imwrite("coordinates" + VIDEO_PATH[16]+ "_" + str(i) + ".jpg",firstFrame)
+    firstFrame = originalFrame
 
 stop = timeit.default_timer()
 print('Time: ', stop - start)
