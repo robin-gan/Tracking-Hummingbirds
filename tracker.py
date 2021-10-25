@@ -91,6 +91,7 @@ start = timeit.default_timer()
 tracemalloc.start()
 
 all += active
+print(len(all))
 divesRaw = processDives(all)
 lens = [len(d.boxes()) for d in divesRaw]
 dives2 = [divesRaw[lens.index(max(lens))]]

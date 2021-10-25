@@ -3,6 +3,7 @@
 weights/
 video/
 images/
+__pycache__/
 
 # JPEG
 *.jpg
