@@ -7,6 +7,7 @@ MERGE_AREA = 100 #to be determined later
 MIN_DISTANCE_OF_CLOSE = 50 #change to factor of the box itself's width and height
 INACTIVE_LIMIT = 1
 BOX_BORDER_COLOR = (111, 0, 51)
+DIVE_LENGTH_LIMIT = 3
 
 heightUpLimit = 1080
 heightDownLimit = 0
