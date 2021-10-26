@@ -50,7 +50,6 @@ while next is not None and frameNum <= length:
                         #(x+w+widthDownLimit, y+h+heightDownLimit), (0,255,0), 2)
         
     extract(currentBoxes, active, all, frameNum, firstFrame.copy())
-    print(len(active), len(all))
     frameNum += 1
 
     '''for b in currentBoxes:
@@ -92,7 +91,6 @@ start = timeit.default_timer()
 tracemalloc.start()
 
 all += active
-print(len(all))
 divesRaw = processDives(all)
 lens = [len(d.boxes()) for d in divesRaw]
 dives2 = [divesRaw[lens.index(max(lens))]]

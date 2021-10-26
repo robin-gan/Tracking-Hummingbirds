@@ -78,7 +78,7 @@ def extract(current, active, all, frameNumber, drawFrame):
         #remove inactive
         inactiveIndex = [i3 for i3, dive in enumerate(active) if not dive.isActive(frameNumber)]
         all += [active[ele] for ele in inactiveIndex]
-        active = [d for i6, d in enumerate(active) if i6 not in inactiveIndex]
+        active[:] = [d for i6, d in enumerate(active) if i6 not in inactiveIndex]
 
         '''for index, dive in enumerate(active):
             color = randomColor()
