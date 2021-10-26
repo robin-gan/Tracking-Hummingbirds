@@ -48,8 +48,9 @@ while next is not None and frameNum <= length:
             currentBoxes.append((x, y, w, h))
             #cv2.rectangle(curr, (x+widthDownLimit, y+heightDownLimit), 
                         #(x+w+widthDownLimit, y+h+heightDownLimit), (0,255,0), 2)
-            
+        
     extract(currentBoxes, active, all, frameNum)
+    print(len(active), len(all))
     frameNum += 1
 
     '''for b in currentBoxes:
