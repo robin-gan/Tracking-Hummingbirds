@@ -7,7 +7,7 @@ from tool import convert
 start = timeit.default_timer()
 tracemalloc.start()
 
-VIDEO_PATH = 'video/train/test3.mp4'
+VIDEO_PATH = 'video/train/test1.mp4'
 
 cap = cv2.VideoCapture(VIDEO_PATH)
 
@@ -92,28 +92,25 @@ tracemalloc.start()
 
 all += active
 divesRaw = processDives(all)
-lens = [len(d.boxes()) for d in divesRaw]
-dives2 = [divesRaw[lens.index(max(lens))]]
-
 originalFrame = firstFrame.copy()
-for i, dives in enumerate([divesRaw, dives2]):
-    for index, dive in enumerate(dives):
-        color = randomColor()
-        prev = None
-        for d in dive.boxes():
-            (x, y, w, h) = d.size()
-            cv2.rectangle(firstFrame, (x+widthDownLimit, y+heightDownLimit), 
-                        (x+w+widthDownLimit, y+h+heightDownLimit), 
-                        (color[0], color[1], color[2]), 2)
-            if (prev != None):
-                (x2, y2, w2, h2) = prev.size()
-                cv2.line(firstFrame, (x2+int(w2/2), y2+int(h2/2)), (x+int(w/2), y+int(h/2)), 
-                        (color[0], color[1], color[2]), thickness=3, lineType=8)
-            prev = d
 
-    #cv2.imwrite("images/coordinates_" + str(index) + ".jpg", firstFrame)
-    cv2.imwrite("coordinates" + VIDEO_PATH[16]+ "_" + str(i) + ".jpg",firstFrame)
-    firstFrame = originalFrame
+for index, dive in enumerate(divesRaw):
+    color = randomColor()
+    prev = None
+    for d in dive.boxes():
+        (x, y, w, h) = d.size()
+        cv2.rectangle(firstFrame, (x+widthDownLimit, y+heightDownLimit), 
+                    (x+w+widthDownLimit, y+h+heightDownLimit), 
+                    (color[0], color[1], color[2]), 2)
+        if (prev != None):
+            (x2, y2, w2, h2) = prev.size()
+            cv2.line(firstFrame, (x2+int(w2/2), y2+int(h2/2)), (x+int(w/2), y+int(h/2)), 
+                    (color[0], color[1], color[2]), thickness=3, lineType=8)
+        prev = d
+
+#cv2.imwrite("images/coordinates_" + str(index) + ".jpg", firstFrame)
+cv2.imwrite("coordinates" + VIDEO_PATH[16] + ".jpg",firstFrame)
+firstFrame = originalFrame
 
 print("-------")
 currentMemory, peak = tracemalloc.get_traced_memory()

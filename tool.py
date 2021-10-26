@@ -8,6 +8,7 @@ MIN_DISTANCE_OF_CLOSE = 50 #change to factor of the box itself's width and heigh
 INACTIVE_LIMIT = 1
 BOX_BORDER_COLOR = (111, 0, 51)
 DIVE_LENGTH_LIMIT = 3
+DUPLICATE_RATE = 2/3
 
 heightUpLimit = 1080
 heightDownLimit = 0

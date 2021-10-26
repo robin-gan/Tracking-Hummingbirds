@@ -1,6 +1,7 @@
 import math
 from tool import *
 
+FEEDER = (766, 383, 136, 178)
 class Box:
     def __init__(self, data, frame):
         self.data = data
@@ -20,9 +21,12 @@ class Dive:
     def __init__(self):
         self.points = []
         self.distance = 0
+        self.isTouchFeeder = False
 
     def add(self, value):
         self.points.append(value)
+        if real_distance(value.size(), FEEDER) < MERGE_DISTANCE:
+            self.isTouchFeeder = True
 
     def size(self):
         return len(self.points)
@@ -38,13 +42,45 @@ class Dive:
     def boxes(self) -> list:
         return self.points
 
+    def isTouched(self) -> bool:
+        return self.isTouchFeeder
+
 def addDive(dives:list, boxData, frameNum):
     newDive = Dive()
     newDive.add(Box(boxData, frameNum))
     dives.append(newDive)
 
+def detectDuplicates(i, i2, divesList):
+    bigger, smaller = [], []
+    if divesList[i].size() > divesList[i2].size():
+        bigger, smaller = i, i2
+    else:
+        bigger, smaller = i2, i
+    c, smallerLength = 0, divesList[smaller].size()
+    smallerBoxes = [b.size() for b in divesList[smaller].boxes()]
+    biggerBoxes = [b.size() for b in divesList[bigger].boxes()]
+    for d in smallerBoxes:
+        if d in biggerBoxes:
+            c += 1
+        if c / smallerLength >= DUPLICATE_RATE:
+            return [smaller]
+    return [smaller, bigger]
+
 def processDives(dives):
-    p = [d for d in dives if d.size() > DIVE_LENGTH_LIMIT]
+    long = [d for d in dives if d.size() > DIVE_LENGTH_LIMIT]
+    duplicateIndex = []
+    if len(long) > 1:
+        for i, dive1 in enumerate(long):
+            if i not in duplicateIndex:
+                for i2, dive2 in enumerate(long):
+                    if i != i2 and i2 not in duplicateIndex:
+                        duplicate = detectDuplicates(i, i2, long)
+                        if len(duplicate) == 1:
+                            duplicateIndex.append(duplicate[0])
+                            if duplicate[0] == i:
+                                break
+    non_duplicate = [d for i, d in enumerate(long) if i not in duplicateIndex]
+    p = [d for d in non_duplicate if d.isTouched()]
     return p
 
 def extract(current, active, all, frameNumber, drawFrame):
