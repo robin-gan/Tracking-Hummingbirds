@@ -49,7 +49,7 @@ while next is not None and frameNum <= length:
             #cv2.rectangle(curr, (x+widthDownLimit, y+heightDownLimit), 
                         #(x+w+widthDownLimit, y+h+heightDownLimit), (0,255,0), 2)
         
-    extract(currentBoxes, active, all, frameNum)
+    extract(currentBoxes, active, all, frameNum, firstFrame.copy())
     print(len(active), len(all))
     frameNum += 1
 
