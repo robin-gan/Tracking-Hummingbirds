@@ -7,7 +7,7 @@ from tool import convert
 start = timeit.default_timer()
 tracemalloc.start()
 
-VIDEO_PATH = 'video/train/test1.mp4'
+VIDEO_PATH = 'video/train/test3.mp4'
 
 cap = cv2.VideoCapture(VIDEO_PATH)
 
