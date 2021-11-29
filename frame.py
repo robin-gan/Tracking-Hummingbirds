@@ -1,7 +1,9 @@
 import math
 from tool import *
 
-FEEDER = (766, 383, 136, 178)
+#FEEDER = [(766, 383, 136, 178)]
+FEEDER = []
+
 class Box:
     def __init__(self, data, frame):
         self.data = data
@@ -21,12 +23,21 @@ class Dive:
     def __init__(self):
         self.points = []
         self.distance = 0
-        self.isTouchFeeder = False
+        self.isTouchFeeder = True
+        self.absoluteDistance = 0.0
+        self.boundary = None
 
-    def add(self, value):
+    def add(self, value, feeders):
+        if self.boundary == None:
+            (x, y, w, h) = value.size()
+            self.boundary = [y, y+h, x, x+w]
+        self.boundary = calcCurrentBoundary(self.boundary, value.size())
+        if len(self.points) > 0:
+            self.absoluteDistance += euclidean_distance_4(value.size(), self.points[-1].size())
         self.points.append(value)
-        if real_distance(value.size(), FEEDER) < MERGE_DISTANCE:
-            self.isTouchFeeder = True
+        for feeder in feeders:
+            if real_distance(value.size(), feeder) < MERGE_DISTANCE:
+                self.isTouchFeeder = True
 
     def size(self):
         return len(self.points)
@@ -44,10 +55,18 @@ class Dive:
 
     def isTouched(self) -> bool:
         return self.isTouchFeeder
+    
+    def getAbsDis(self) -> float:
+        return self.absoluteDistance
 
-def addDive(dives:list, boxData, frameNum):
+    def getMovingArea(self):
+        factor = ((self.boundary[1] - self.boundary[0]) * (self.boundary[3] - self.boundary[2]))
+        return factor
+    
+
+def addDive(dives:list, boxData, frameNum, feeders):
     newDive = Dive()
-    newDive.add(Box(boxData, frameNum))
+    newDive.add(Box(boxData, frameNum), feeders)
     dives.append(newDive)
 
 def detectDuplicates(i, i2, divesList):
@@ -80,10 +99,13 @@ def processDives(dives):
                             if duplicate[0] == i:
                                 break
     non_duplicate = [d for i, d in enumerate(long) if i not in duplicateIndex]
-    p = [d for d in non_duplicate if d.isTouched()]
+    touched = [d for d in non_duplicate if d.isTouched()]
+    dis = [d for d in touched if d.getAbsDis() > ABSOLUTE_DISTANCE_LIMIT]
+    p = [d for d in dis if d.getMovingArea() > MOVING_AREA_LIMIT]
+
     return p
 
-def extract(current, active, all, frameNumber, drawFrame):
+def extract(current, active, all, frameNumber, drawFrame, feeders):
     '''
     firstFrame = currentFrame.copy()
     rawPic = currentFrame.copy()
@@ -92,7 +114,7 @@ def extract(current, active, all, frameNumber, drawFrame):
     if (frameNumber == 1):
         current = mergeBoxes(current)
         for box in current:
-            addDive(active, box, frameNumber)
+            addDive(active, box, frameNumber, feeders)
     else:
         if (len(current) > 0):
             picked = []
@@ -105,11 +127,11 @@ def extract(current, active, all, frameNumber, drawFrame):
                     picked.append(minIndex)
                     minBox = current[minIndex]
                     merge = mergeBoxes([b for b in current if canMerge(minBox, b)] + [minBox])
-                    active[i2].add(Box(merge[0], frameNumber))
+                    active[i2].add(Box(merge[0], frameNumber), feeders)
 
         #add non pick as new dive
         for ele in [box_ for i5, box_ in enumerate(current) if i5 not in picked]:
-            addDive(active, ele, frameNumber)
+            addDive(active, ele, frameNumber, feeders)
 
         #remove inactive
         inactiveIndex = [i3 for i3, dive in enumerate(active) if not dive.isActive(frameNumber)]

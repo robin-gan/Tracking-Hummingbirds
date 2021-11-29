@@ -9,6 +9,8 @@ INACTIVE_LIMIT = 1
 BOX_BORDER_COLOR = (111, 0, 51)
 DIVE_LENGTH_LIMIT = 3
 DUPLICATE_RATE = 2/3
+ABSOLUTE_DISTANCE_LIMIT = 100
+MOVING_AREA_LIMIT = 10000
 
 heightUpLimit = 1080
 heightDownLimit = 0
@@ -58,11 +60,30 @@ def canMerge(box1, box2):
     (x2, y2, w2, h2) = box2
     return real_distance(box1, box2) < MERGE_DISTANCE and min(w2*h2, w1*h1) < MERGE_AREA
 
+def calcCurrentBoundary(current, add):
+    (x, y, w, h) = add
+    top = y
+    bottom = y + h
+    left = x
+    right = x + w
+    if current[0] > top:
+        current[0] = top
+    if current[1] < bottom:
+        current[1] = bottom
+    if current[2] > left:
+        current[2] = left
+    if current[3] < right:
+        current[3] = right
+    return current
+
 #only used in real_distance
 def euclidean_distance(box1, box2):
     (x, y) = box1
     (x2, y2) = box2
     return math.hypot(x2 - x, y2 - y)
+
+def euclidean_distance_4(box1, box2):
+    return euclidean_distance((box1[0], box1[1]), (box2[0], box2[1]))
 
 def real_distance(box1, box2):
     (x1, y1, w1, h1) = box1
