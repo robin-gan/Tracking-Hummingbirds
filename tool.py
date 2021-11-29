@@ -3,6 +3,7 @@ import cv2
 import math
 
 MERGE_DISTANCE = 15
+FEEDER_CLOSE = 100
 MERGE_AREA = 100 #to be determined later
 MIN_DISTANCE_OF_CLOSE = 50 #change to factor of the box itself's width and height
 INACTIVE_LIMIT = 1

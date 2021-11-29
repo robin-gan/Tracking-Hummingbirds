@@ -3,8 +3,10 @@ import tracemalloc
 from frame import *
 import timeit
 from tool import convert
+import os
 
-paths = ['video/train/test2.mp4']
+#paths = ['video/birds/Finca/13-Mayo/Green/GP011049.LRV']
+paths = ['video/train/test1.mp4']
 
 for path in paths:
     print(path)
@@ -16,6 +18,7 @@ for path in paths:
     length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     frame_height =int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    print(frame_width, frame_height)
     fourcc = cv2.VideoWriter_fourcc('X','V','I','D')
     fps = cap.get(cv2.CAP_PROP_FPS)
 
@@ -36,6 +39,10 @@ for path in paths:
     all = []
 
     while next is not None and frameNum <= length:
+        print(frameNum, length)
+        #curr = cv2.resize(curr,(432,240),fx=0,fy=0, interpolation = cv2.INTER_AREA)
+        #next = cv2.resize(next,(432,240),fx=0,fy=0, interpolation = cv2.INTER_AREA)
+
         diff = cv2.absdiff(curr, next)
         gray = cv2.cvtColor(diff, cv2.COLOR_BGR2GRAY)
         blur = cv2.GaussianBlur(gray, (5,5), 0)
@@ -69,11 +76,7 @@ for path in paths:
             break'''
 
         curr = next
-        #s1 = s2
-
         ret, next = cap.read()
-        #if next is not None:
-            #s2 = (next[heightDownLimit:heightUpLimit, widthDownLimit:widthUpLimit]).copy()
         
         #if cv2.waitKey(40) == 27:
             #break
@@ -96,7 +99,13 @@ for path in paths:
     divesRaw = processDives(all)
     originalFrame = firstFrame.copy()
 
-    with open(path.split("/")[-1] + '.txt', 'w') as f:
+    output_path = "output/" + path
+    l = output_path.split('/')
+    pa = '/'.join(l[:len(l)-1])
+    if not os.path.exists(pa):
+        os.makedirs(pa)
+
+    with open(output_path + '.txt', 'w') as f:
         for index, dive in enumerate(divesRaw):
             color = randomColor()
             prev = None
@@ -104,10 +113,11 @@ for path in paths:
 
             for d in dive.boxes():
                 (x, y, w, h) = d.size()
-                f.write(str(x) + ',' + str(y) + ',' + str(d.frameNumber()) + "\n")
-                cv2.rectangle(firstFrame, (x+widthDownLimit, y+heightDownLimit), 
+                f.write(str(x) + ',' + str(y) + ',' + str(d.frameNumber()/fps) + "\n")
+                '''cv2.rectangle(firstFrame, (x+widthDownLimit, y+heightDownLimit), 
                             (x+w+widthDownLimit, y+h+heightDownLimit), 
-                            (color[0], color[1], color[2]), 2)
+                            (color[0], color[1], color[2]), 2)'''
+                cv2.circle(firstFrame, (x+int(w/2), y+int(h/2)), 7, (color[0], color[1], color[2]), -1)
                 if (prev != None):
                     (x2, y2, w2, h2) = prev.size()
                     cv2.line(firstFrame, (x2+int(w2/2), y2+int(h2/2)), (x+int(w/2), y+int(h/2)), 

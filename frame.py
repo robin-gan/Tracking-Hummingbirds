@@ -36,7 +36,7 @@ class Dive:
             self.absoluteDistance += euclidean_distance_4(value.size(), self.points[-1].size())
         self.points.append(value)
         for feeder in feeders:
-            if real_distance(value.size(), feeder) < MERGE_DISTANCE:
+            if real_distance(value.size(), feeder) < FEEDER_CLOSE:
                 self.isTouchFeeder = True
 
     def size(self):
@@ -62,7 +62,6 @@ class Dive:
     def getMovingArea(self):
         factor = ((self.boundary[1] - self.boundary[0]) * (self.boundary[3] - self.boundary[2]))
         return factor
-    
 
 def addDive(dives:list, boxData, frameNum, feeders):
     newDive = Dive()
@@ -85,24 +84,27 @@ def detectDuplicates(i, i2, divesList):
             return [smaller]
     return [smaller, bigger]
 
-def processDives(dives):
-    long = [d for d in dives if d.size() > DIVE_LENGTH_LIMIT]
+def removeDuplicated(dives):
     duplicateIndex = []
-    if len(long) > 1:
-        for i, dive1 in enumerate(long):
+    if len(dives) > 1:
+        for i, dive1 in enumerate(dives):
             if i not in duplicateIndex:
-                for i2, dive2 in enumerate(long):
+                for i2, dive2 in enumerate(dives):
                     if i != i2 and i2 not in duplicateIndex:
-                        duplicate = detectDuplicates(i, i2, long)
+                        duplicate = detectDuplicates(i, i2, dives)
                         if len(duplicate) == 1:
                             duplicateIndex.append(duplicate[0])
                             if duplicate[0] == i:
                                 break
-    non_duplicate = [d for i, d in enumerate(long) if i not in duplicateIndex]
+    non_duplicate = [d for i, d in enumerate(dives) if i not in duplicateIndex]
+    return non_duplicate
+
+def processDives(dives):
+    long = [d for d in dives if d.size() > DIVE_LENGTH_LIMIT]
+    non_duplicate = removeDuplicated(long)
     touched = [d for d in non_duplicate if d.isTouched()]
     dis = [d for d in touched if d.getAbsDis() > ABSOLUTE_DISTANCE_LIMIT]
     p = [d for d in dis if d.getMovingArea() > MOVING_AREA_LIMIT]
-
     return p
 
 def extract(current, active, all, frameNumber, drawFrame, feeders):
