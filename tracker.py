@@ -12,13 +12,12 @@ for path in paths:
     print(path)
     start = timeit.default_timer()
     tracemalloc.start()
-
     cap = cv2.VideoCapture(path)
 
     length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     frame_height =int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    print(frame_width, frame_height)
+    downSize = (int(frame_width/2), int(frame_height/2))
     fourcc = cv2.VideoWriter_fourcc('X','V','I','D')
     fps = cap.get(cv2.CAP_PROP_FPS)
 
@@ -27,6 +26,8 @@ for path in paths:
 
     ret, curr = cap.read()
     ret, next = cap.read()
+    if frame_width >= BIG_WIDTH_LIMIT:
+        curr = cv2.resize(curr, downSize, fx=0, fy=0, interpolation = cv2.INTER_CUBIC)
     firstFrame = curr.copy()
 
     '''s1 = (curr[heightDownLimit:heightUpLimit, 
@@ -40,8 +41,9 @@ for path in paths:
 
     while next is not None and frameNum <= length:
         print(frameNum, length)
-        #curr = cv2.resize(curr,(432,240),fx=0,fy=0, interpolation = cv2.INTER_AREA)
-        #next = cv2.resize(next,(432,240),fx=0,fy=0, interpolation = cv2.INTER_AREA)
+        if frame_width >= BIG_WIDTH_LIMIT:
+            curr = cv2.resize(curr, downSize, fx=0, fy=0, interpolation = cv2.INTER_CUBIC)
+            next = cv2.resize(next, downSize, fx=0, fy=0, interpolation = cv2.INTER_CUBIC)
 
         diff = cv2.absdiff(curr, next)
         gray = cv2.cvtColor(diff, cv2.COLOR_BGR2GRAY)
@@ -75,6 +77,7 @@ for path in paths:
         except:
             break'''
 
+        #cv2.imwrite("images/test+" + str(frameNum) + ".jpg", curr)
         curr = next
         ret, next = cap.read()
         
@@ -91,6 +94,7 @@ for path in paths:
     stop = timeit.default_timer()
     print('Time video: ', stop - start)
 
+
     #----post process-----
     start = timeit.default_timer()
     tracemalloc.start()
@@ -104,7 +108,7 @@ for path in paths:
     pa = '/'.join(l[:len(l)-1])
     if not os.path.exists(pa):
         os.makedirs(pa)
-
+    
     with open(output_path + '.txt', 'w') as f:
         for index, dive in enumerate(divesRaw):
             color = randomColor()
