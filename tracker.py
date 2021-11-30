@@ -6,7 +6,8 @@ from tool import convert
 import os
 
 #paths = ['video/birds/Finca/13-Mayo/Green/GP011049.LRV']
-paths = ['video/train/test1.mp4']
+#paths = ['video/birds/7-15-21/B/GX010051.MP4']
+paths = ['video/train/test8.mp4']
 
 for path in paths:
     print(path)
@@ -17,7 +18,7 @@ for path in paths:
     length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     frame_height =int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    downSize = (int(frame_width/2), int(frame_height/2))
+    downSize = (int(frame_width/4), int(frame_height/4))
     fourcc = cv2.VideoWriter_fourcc('X','V','I','D')
     fps = cap.get(cv2.CAP_PROP_FPS)
 
@@ -39,8 +40,13 @@ for path in paths:
     active = []
     all = []
 
-    while next is not None and frameNum <= length:
+    while frameNum <= length:
         print(frameNum, length)
+        if next is None:
+            frameNum += 1
+            ret, next = cap.read()
+            continue
+
         if frame_width >= BIG_WIDTH_LIMIT:
             curr = cv2.resize(curr, downSize, fx=0, fy=0, interpolation = cv2.INTER_CUBIC)
             next = cv2.resize(next, downSize, fx=0, fy=0, interpolation = cv2.INTER_CUBIC)
