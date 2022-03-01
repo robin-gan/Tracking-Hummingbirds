@@ -1,6 +1,7 @@
 import random
 import cv2
 import math
+import csv
 
 MERGE_DISTANCE = 15
 FEEDER_CLOSE = 100
@@ -12,7 +13,7 @@ DIVE_LENGTH_LIMIT = 3
 DUPLICATE_RATE = 2/3
 ABSOLUTE_DISTANCE_LIMIT = 100
 MOVING_AREA_LIMIT = 10000
-BIG_WIDTH_LIMIT = 1000
+BIG_WIDTH_LIMIT = 1900
 
 heightUpLimit = 1080
 heightDownLimit = 0
@@ -137,6 +138,59 @@ def draw(pic, boxes, i):
         cv2.rectangle(pic, (x+widthDownLimit, y+heightDownLimit), 
                         (x+w+widthDownLimit, y+h+heightDownLimit), BOX_BORDER_COLOR, 2)
     cv2.imwrite("images/coordinates_" + str(i) + "_raw.jpg", pic)
+
+def writeDive(set1, set2, set3, output_path):
+    num = 1
+    while len(set1) > 0 or len(set2) > 0 or len(set3) > 0:
+        curr1, curr2, curr3 = [], [], []
+        if len(set1) > 0:
+            curr1 = (set1.pop(0)).boxes()
+        if len(set2) > 0:
+            curr2 = (set2.pop(0)).boxes()
+        if len(set3) > 0:
+            curr3 = (set3.pop(0)).boxes()
+
+        with open(output_path + '.' + str(num) + '.csv', 'w') as csvfile:
+            f = csv.writer(csvfile)
+            f.writerow(['Track 1_cam_1_x', 'Track 1_cam_1_y', 'Track 1_cam_2_x',
+                    'Track 1_cam_2_y', 'Track 1_cam_3_x', 'Track 1_cam_3_y'])
+            writeCSV(curr1, curr2, curr3, f)
+        num += 1
+        
+def writeCSV(d1, d2,d3, writer):
+    frameNum = 0
+    row = []
+    while len(d1) > 0 or len(d2) > 0 or len(d3) > 0:
+        if len(d1) > 0 and d1[0].frameNumber() == frameNum:
+            (x, y, w, h) = d1[0].size()
+            row.append(str(x))
+            row.append(str(y))
+            d1.pop(0)
+        else:
+            row.append('NaN')
+            row.append('NaN')
+        
+        if len(d2) > 0 and d2[0].frameNumber() == frameNum:
+            (x, y, w, h) = d2[0].size()
+            row.append(str(x))
+            row.append(str(y))
+            d2.pop(0)
+        else:
+            row.append('NaN')
+            row.append('NaN')
+
+        if len(d3) > 0 and d3[0].frameNumber() == frameNum:
+            (x, y, w, h) = d3[0].size()
+            row.append(str(x))
+            row.append(str(y))
+            d3.pop(0)
+        else:
+            row.append('NaN')
+            row.append('NaN')
+
+        writer.writerow(row)
+        row = []
+        frameNum += 1
 
 #draw the coordinates - old method
 '''for i, frame in enumerate(frames):

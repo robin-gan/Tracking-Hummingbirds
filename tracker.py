@@ -4,12 +4,20 @@ from frame import *
 import timeit
 from tool import convert
 import os
+import csv
 
 #paths = ['video/birds/Finca/13-Mayo/Green/GP011049.LRV']
 #paths = ['video/birds/7-15-21/B/GX010051.MP4']
-paths = ['video/train/test8.mp4']
+videos = {
+    'video1' : ['video/train/test1.mp4', False],
+    'video2' : ['video/train/test2.mp4', False],
+    'video3' : ['video/train/test8.mp4', True]
+}
+divesSet = []
 
-for path in paths:
+for name, value in videos.items():
+    path = value[0]
+    resize = value[1]
     print(path)
     start = timeit.default_timer()
     tracemalloc.start()
@@ -27,7 +35,7 @@ for path in paths:
 
     ret, curr = cap.read()
     ret, next = cap.read()
-    if frame_width >= BIG_WIDTH_LIMIT:
+    if frame_width >= BIG_WIDTH_LIMIT and resize:
         curr = cv2.resize(curr, downSize, fx=0, fy=0, interpolation = cv2.INTER_CUBIC)
     firstFrame = curr.copy()
 
@@ -41,13 +49,14 @@ for path in paths:
     all = []
 
     while frameNum <= length:
-        print(frameNum, length)
+        print('current frame: ' + str(frameNum) 
+            + ' | total frames: ' + str(length))
         if next is None:
             frameNum += 1
             ret, next = cap.read()
             continue
 
-        if frame_width >= BIG_WIDTH_LIMIT:
+        if frame_width >= BIG_WIDTH_LIMIT and resize:
             curr = cv2.resize(curr, downSize, fx=0, fy=0, interpolation = cv2.INTER_CUBIC)
             next = cv2.resize(next, downSize, fx=0, fy=0, interpolation = cv2.INTER_CUBIC)
 
@@ -95,11 +104,11 @@ for path in paths:
     #out.release()
 
     currentMemory, peak = tracemalloc.get_traced_memory()
+    print("-------")
     print(f"Video: Current memory usage is {currentMemory / 10**6}MB; Peak was {peak / 10**6}MB")
     tracemalloc.stop()
     stop = timeit.default_timer()
     print('Time video: ', stop - start)
-
 
     #----post process-----
     start = timeit.default_timer()
@@ -107,6 +116,7 @@ for path in paths:
 
     all += active
     divesRaw = processDives(all)
+
     originalFrame = firstFrame.copy()
 
     output_path = "output/" + path
@@ -115,27 +125,8 @@ for path in paths:
     if not os.path.exists(pa):
         os.makedirs(pa)
     
-    with open(output_path + '.txt', 'w') as f:
-        for index, dive in enumerate(divesRaw):
-            color = randomColor()
-            prev = None
-            f.write('Dive' + str(index+1) + "\n")
-
-            for d in dive.boxes():
-                (x, y, w, h) = d.size()
-                f.write(str(x) + ',' + str(y) + ',' + str(d.frameNumber()/fps) + "\n")
-                '''cv2.rectangle(firstFrame, (x+widthDownLimit, y+heightDownLimit), 
-                            (x+w+widthDownLimit, y+h+heightDownLimit), 
-                            (color[0], color[1], color[2]), 2)'''
-                cv2.circle(firstFrame, (x+int(w/2), y+int(h/2)), 7, (color[0], color[1], color[2]), -1)
-                if (prev != None):
-                    (x2, y2, w2, h2) = prev.size()
-                    cv2.line(firstFrame, (x2+int(w2/2), y2+int(h2/2)), (x+int(w/2), y+int(h/2)), 
-                            (color[0], color[1], color[2]), thickness=3, lineType=8)
-                prev = d
-            f.write('\n')
-            cv2.imwrite("images/coordinates" + path[16] + '_' + str(index) +".jpg", firstFrame)
-            firstFrame = originalFrame.copy()
+    print(str(len(divesRaw)) + " dives found")
+    divesSet.append(divesRaw)
 
     print("-------")
     currentMemory, peak = tracemalloc.get_traced_memory()
@@ -143,3 +134,26 @@ for path in paths:
     tracemalloc.stop()
     stop = timeit.default_timer()
     print('Time post: ', stop - start)
+
+writeDive(divesSet[0], divesSet[1], divesSet[2], output_path)
+'''with open(output_path + '.csv', 'w') as csvfile:
+    f = csv.writer(csvfile)
+    f.writerow(['Track 1_cam_1_x', 'Track 1_cam_1_y', 'Track 1_cam_2_x',
+                'Track 1_cam_2_y', 'Track 1_cam_3_x', 'Track 1_cam_3_y'])
+    
+    for index, dive in enumerate(divesRaw):
+        color = randomColor()
+        prev = None
+
+        for d in dive.boxes():
+            (x, y, w, h) = d.size()
+            #f.write(str(x) + ',' + str(y) + ',' + str(d.frameNumber()) + "\n")
+            f.writerow([str(x), str(y), '0', '0', '0', '0'])
+            cv2.circle(firstFrame, (x+int(w/2), y+int(h/2)), 7, (color[0], color[1], color[2]), -1)
+            if (prev != None):
+                (x2, y2, w2, h2) = prev.size()
+                cv2.line(firstFrame, (x2+int(w2/2), y2+int(h2/2)), (x+int(w/2), y+int(h/2)), 
+                        (color[0], color[1], color[2]), thickness=3, lineType=8)
+            prev = d
+        cv2.imwrite("images/coordinates" + path[16] + '_' + str(index) +".jpg", firstFrame)
+        firstFrame = originalFrame.copy()'''
