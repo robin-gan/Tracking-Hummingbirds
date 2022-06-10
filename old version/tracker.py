@@ -13,7 +13,7 @@ videos = {
     'video2' : ['video/train/test2.mp4', False],
     'video3' : ['video/train/test8.mp4', True]
 }
-divesSet = []
+divesSet = [] #contains all the drives from 3 videos of 3 different angles of the same period of time
 
 for name, value in videos.items():
     path = value[0]

@@ -13,7 +13,7 @@ videos = {
     'video2' : ['video/train/01568_Trim.mp4', False],
     #'video3' : ['video/train/test8.mp4', False]
 }
-divesSet = []
+divesSet = [] #contains all the drives from 3 videos of 3 different angles of the same period of time
 
 for name, value in videos.items():
     path = value[0]
@@ -78,26 +78,26 @@ for name, value in videos.items():
         extract(currentBoxes, active, all, frameNum, firstFrame.copy(), FEEDER)
         frameNum += 1
 
-        '''for b in currentBoxes:
+        '''#view real time tracking
+        for b in currentBoxes:
             (x, y, w, h) = b
             cv2.rectangle(curr, (x+widthDownLimit, y+heightDownLimit), 
                             (x+w+widthDownLimit, y+h+heightDownLimit), BOX_BORDER_COLOR, 2)
             #cv2.drawContours(curr, contours, -1, BOX_BORDER_COLOR, 2)
-        print(convert(frameNum / fps))
+        try:
+            cv2.imshow("feed", curr)
+        except:
+            break
+        if cv2.waitKey(40) == 27:
+            break'''
+
+        '''print(convert(frameNum / fps))
         print(frameNum, length)
         print("----------")'''
         #out.write(curr)
-        '''try:
-            cv2.imshow("feed", curr)
-        except:
-            break'''
-
         #cv2.imwrite("images/test+" + str(frameNum) + ".jpg", curr)
         curr = next
         ret, next = cap.read()
-        
-        #if cv2.waitKey(40) == 27:
-            #break
 
     cv2.destroyAllWindows()
     cap.release()
@@ -126,7 +126,7 @@ for name, value in videos.items():
         os.makedirs(pa)
     
     print(str(len(divesRaw)) + " dives found")
-    divesSet.append(divesRaw)
+    #divesSet.append(divesRaw)
 
     print("-------")
     currentMemory, peak = tracemalloc.get_traced_memory()
@@ -136,7 +136,7 @@ for name, value in videos.items():
     print('Time post: ', stop - start)
 
 #writeDive(divesSet[0], divesSet[1], divesSet[2], output_path)
-with open(output_path + '.csv', 'w') as csvfile:
+'''with open(output_path + '.csv', 'w') as csvfile:
     f = csv.writer(csvfile)
     f.writerow(['Track 1_cam_1_x', 'Track 1_cam_1_y', 'Track 1_cam_2_x',
                 'Track 1_cam_2_y', 'Track 1_cam_3_x', 'Track 1_cam_3_y'])
@@ -156,4 +156,4 @@ with open(output_path + '.csv', 'w') as csvfile:
                         (color[0], color[1], color[2]), thickness=3, lineType=8)
             prev = d
         cv2.imwrite("images/coordinates" + path[16] + '_' + str(index) +".jpg", firstFrame)
-        firstFrame = originalFrame.copy()
+        firstFrame = originalFrame.copy()'''
