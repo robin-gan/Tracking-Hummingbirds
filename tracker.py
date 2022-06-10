@@ -9,9 +9,9 @@ import csv
 #paths = ['video/birds/Finca/13-Mayo/Green/GP011049.LRV']
 #paths = ['video/birds/7-15-21/B/GX010051.MP4']
 videos = {
-    'video1' : ['video/train/test1.mp4', False],
-    'video2' : ['video/train/test2.mp4', False],
-    'video3' : ['video/train/test8.mp4', True]
+    #'video1' : ['video/train/test1.mp4', False],
+    'video2' : ['video/train/01568_Trim.mp4', False],
+    #'video3' : ['video/train/test8.mp4', False]
 }
 divesSet = []
 
@@ -135,8 +135,8 @@ for name, value in videos.items():
     stop = timeit.default_timer()
     print('Time post: ', stop - start)
 
-writeDive(divesSet[0], divesSet[1], divesSet[2], output_path)
-'''with open(output_path + '.csv', 'w') as csvfile:
+#writeDive(divesSet[0], divesSet[1], divesSet[2], output_path)
+with open(output_path + '.csv', 'w') as csvfile:
     f = csv.writer(csvfile)
     f.writerow(['Track 1_cam_1_x', 'Track 1_cam_1_y', 'Track 1_cam_2_x',
                 'Track 1_cam_2_y', 'Track 1_cam_3_x', 'Track 1_cam_3_y'])
@@ -156,4 +156,4 @@ writeDive(divesSet[0], divesSet[1], divesSet[2], output_path)
                         (color[0], color[1], color[2]), thickness=3, lineType=8)
             prev = d
         cv2.imwrite("images/coordinates" + path[16] + '_' + str(index) +".jpg", firstFrame)
-        firstFrame = originalFrame.copy()'''
+        firstFrame = originalFrame.copy()
