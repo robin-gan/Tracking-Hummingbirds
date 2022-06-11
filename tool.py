@@ -192,6 +192,12 @@ def writeCSV(d1, d2,d3, writer):
         row = []
         frameNum += 1
 
+def overlapTimeline(time1, time2):
+    return not (time1[1] < time2[0] or time1[0] > time2[1])
+
+def mergeTimeline(time1, time2):
+    return [min(time1[0], time2[0]), max(time1[1], time2[1])]
+
 #draw the coordinates - old method
 '''for i, frame in enumerate(frames):
     for box in frame:

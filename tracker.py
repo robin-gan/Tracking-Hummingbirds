@@ -2,9 +2,10 @@ import cv2
 import tracemalloc
 from frame import *
 import timeit
-from tool import convert
+from tool import convert, overlapTimeline, mergeTimeline
 import os
 import csv
+from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip
 
 #paths = ['video/birds/Finca/13-Mayo/Green/GP011049.LRV']
 #paths = ['video/birds/7-15-21/B/GX010051.MP4']
@@ -127,6 +128,23 @@ for name, value in videos.items():
     
     print(str(len(divesRaw)) + " dives found")
     #divesSet.append(divesRaw)
+
+    rawStartEnd, mergedStartEnd = [],[]
+    for d in divesRaw:
+        rawStartEnd.append([d.boxes()[0].frameNumber(), d.boxes()[-1].frameNumber()])
+    for s in rawStartEnd:
+        if (len(mergedStartEnd) == 0):
+            mergedStartEnd.append(s)
+            continue
+        for i, m in enumerate(mergedStartEnd):
+            if (overlapTimeline(s,m)):
+                mergedStartEnd[i] = mergeTimeline(s,m)
+                break
+            if (i == len(mergedStartEnd)-1):
+                mergedStartEnd.append(s)
+    print(rawStartEnd, mergedStartEnd)
+    for i, m in enumerate(mergedStartEnd):
+        ffmpeg_extract_subclip(path, m[0]/fps, m[1]/fps, targetname=output_path+'_s_'+str(i)+'.mp4')
 
     print("-------")
     currentMemory, peak = tracemalloc.get_traced_memory()
