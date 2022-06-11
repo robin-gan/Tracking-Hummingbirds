@@ -6,13 +6,14 @@ from tool import convert, overlapTimeline, mergeTimeline
 import os
 import csv
 from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip
+from moviepy.editor import *
 
 #paths = ['video/birds/Finca/13-Mayo/Green/GP011049.LRV']
 #paths = ['video/birds/7-15-21/B/GX010051.MP4']
 videos = {
     #'video1' : ['video/train/test1.mp4', False],
     'video2' : ['video/train/01568_Trim.mp4', False],
-    #'video3' : ['video/train/test8.mp4', False]
+    #'video3' : ['video/train/GX140170.mp4', False]
 }
 divesSet = [] #contains all the drives from 3 videos of 3 different angles of the same period of time
 
@@ -143,8 +144,13 @@ for name, value in videos.items():
             if (i == len(mergedStartEnd)-1):
                 mergedStartEnd.append(s)
     print(rawStartEnd, mergedStartEnd)
+
+    clip = VideoFileClip(path)
     for i, m in enumerate(mergedStartEnd):
-        ffmpeg_extract_subclip(path, m[0]/fps, m[1]/fps, targetname=output_path+'_s_'+str(i)+'.mp4')
+        #ffmpeg_extract_subclip(path, m[0]/fps, m[1]/fps, targetname=output_path+'_s_'+str(i)+'.mp4')
+        if (abs(m[0]/fps - m[1]/fps) > 2): #needs to be greater than 2s
+            trim = clip.subclip(m[0]/fps, m[1]/fps)
+            trim.write_videofile(output_path+'_s_'+str(i)+'.mp4')
 
     print("-------")
     currentMemory, peak = tracemalloc.get_traced_memory()
